@@ -15,12 +15,17 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Data.Metagraph
+  exposed-modules:
+    Data.Metagraph
+    Data.Metagraph.Graphviz
+    Data.Metagraph.Impl
   build-depends:
       base >= 4.7 && < 5
     , unordered-containers >= 0.2.5.1
     , lens >= 4.13
-    
+    , graphviz >= 2999.18.1.0
+    , text >= 1.2.2
+
   default-language:    Haskell2010
 
 test-suite unit-tests
