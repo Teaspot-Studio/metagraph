@@ -11,6 +11,7 @@ module Data.Metagraph.Impl(
 import GHC.Generics
 import Control.Lens
 import Data.Int
+import Data.Hashable
 
 import qualified Data.HashMap.Strict as HM
 
@@ -29,10 +30,13 @@ data Metagraph e n = Metagraph {
   metagraphNodes :: HM.HashMap NodeId (MetaNode e n) -- ^ All nodes of the metagraph
 , metagraphDirectedEdges :: HM.HashMap EdgeId (MetaEdge Directed e n) -- ^ All directed edges
 , metagraphUndirectedEdges :: HM.HashMap EdgeId (MetaEdge Undirected e n) -- ^ All undirected edges
+, metagraphNextId :: Int64 -- ^ Next not occupied id
 }
 
 -- | Unique node id based on int64
 newtype NodeId = NodeId { unNodeId :: Int64 } deriving (Eq, Show, Generic)
+
+instance Hashable NodeId
 
 -- | Node of metagraph, can be metagraph or another node.
 --
@@ -48,6 +52,8 @@ data MetaNode e n = MetaNode {
 
 -- | Unique edge id based on int64
 newtype EdgeId = EdgeId { unEdgeId :: Int64 } deriving (Eq, Show, Generic)
+
+instance Hashable EdgeId 
 
 -- | Edge of metagraph, can contain subgraph.
 --

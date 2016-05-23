@@ -19,8 +19,10 @@ library
     Data.Metagraph
     Data.Metagraph.Graphviz
     Data.Metagraph.Impl
+    Data.Metagraph.Strict
   build-depends:
       base >= 4.7 && < 5
+    , hashable >= 1.2.4.0
     , unordered-containers >= 0.2.5.1
     , lens >= 4.13
     , graphviz >= 2999.18.1.0
