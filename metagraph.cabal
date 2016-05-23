@@ -15,8 +15,12 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Lib
-  build-depends:       base >= 4.7 && < 5
+  exposed-modules:     Data.Metagraph
+  build-depends:
+      base >= 4.7 && < 5
+    , unordered-containers >= 0.2.5.1
+    , lens >= 4.13
+    
   default-language:    Haskell2010
 
 test-suite unit-tests
