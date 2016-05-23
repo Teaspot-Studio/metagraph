@@ -2,12 +2,15 @@
 module Data.Metagraph(
     Direction(..)
   , Metagraph
+  , NodeId(..)
   , MetaNode
+  , EdgeId(..)
   , MetaEdge
   ) where
 
 import GHC.Generics
 import Control.Lens
+import Data.Int
 
 import qualified Data.HashMap.Strict as HM
 
@@ -23,10 +26,13 @@ data Direction =
 --
 --    [@n@] Data payload for node.
 data Metagraph e n = Metagraph {
-  metagraphNodes :: [MetaNode e n] -- ^ Nodes that are not attached to any edge
-, metagraphDirectedEdges :: [MetaEdge Directed e n] -- ^ Directed edges with nodes
-, metagraphUndirectedEdges :: [MetaEdge Undirected e n] -- ^ Undirected edges with nodes
+  metagraphNodes :: HM.HashMap NodeId (MetaNode e n) -- ^ All nodes of the metagraph
+, metagraphDirectedEdges :: HM.HashMap EdgeId (MetaEdge Directed e n) -- ^ All directed edges
+, metagraphUndirectedEdges :: HM.HashMap EdgeId (MetaEdge Undirected e n) -- ^ All undirected edges
 }
+
+-- | Unique node id based on int64
+newtype NodeId = NodeId { unNodeId :: Int64 } deriving (Eq, Show, Generic)
 
 -- | Node of metagraph, can be metagraph or another node.
 --
@@ -34,11 +40,14 @@ data Metagraph e n = Metagraph {
 --
 --    [@n@] Data payload for node.
 data MetaNode e n = MetaNode {
-  metaNodeData :: n -- ^ Data payload
+  metaNodeId :: NodeId -- ^ Unique node id
+, metaNodeData :: n -- ^ Data payload
 , metaNodeGraph :: Maybe (Metagraph e n) -- ^ Subgraph of the node.
   -- ^ Subgraph of nodes must consists of undirected edges only.
 }
 
+-- | Unique edge id based on int64
+newtype EdgeId = EdgeId { unEdgeId :: Int64 } deriving (Eq, Show, Generic)
 
 -- | Edge of metagraph, can contain subgraph.
 --
@@ -50,7 +59,8 @@ data MetaNode e n = MetaNode {
 --
 --    [@n@] Data payload for nodes;
 data MetaEdge (d :: Direction) e n = MetaEdge {
-  metaEdgeData :: e -- ^ Data payload
+  metaEdgeId :: EdgeId -- ^ Unique edge id
+, metaEdgeData :: e -- ^ Data payload
 , metaEdgeStart :: MetaNode e n -- ^ Start of the edge
 , metaEdgeEnd :: MetaNode e n -- ^ End of the edge
 , metaEdgeGraph :: Maybe (Metagraph e n) -- ^ Subgraph of the edge.
