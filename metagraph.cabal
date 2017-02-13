@@ -1,43 +1,46 @@
 name:                metagraph
 version:             0.1.0.0
-synopsis:            Library for metagraph data structure.
-description:         Please see README.md
-homepage:            https://github.com/ncrashed/metagraph#readme
+synopsis:            Pure data structure to process metagraphs
+-- description:
+homepage:            https://github.com/teaspot-studio/metagraph#readme
 license:             BSD3
 license-file:        LICENSE
-author:              NCrashed
+author:              Anton Gushcha
 maintainer:          ncrashed@gmail.com
-copyright:           2016 Anton Gushcha
+copyright:           2017 Anton Gushcha
 category:            Data
 build-type:          Simple
--- extra-source-files:
+extra-source-files:  README.md
 cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
   exposed-modules:
     Data.Metagraph
-    Data.Metagraph.Graphviz
-    Data.Metagraph.Impl
+    Data.Metagraph.Internal.Types
+    Data.Metagraph.Lazy
     Data.Metagraph.Strict
   build-depends:
-      base >= 4.7 && < 5
-    , hashable >= 1.2.4.0
-    , unordered-containers >= 0.2.5.1
-    , lens >= 4.13
-    , graphviz >= 2999.18.1.0
-    , text >= 1.2.2
-
+      base       >= 4.7 && < 5
+    , containers >= 0.5 && < 0.6
   default-language:    Haskell2010
+  default-extensions:
+    BangPatterns
+    DeriveGeneric
+    DeriveFunctor
 
 test-suite unit-tests
   type:                exitcode-stdio-1.0
   default-language:    Haskell2010
   main-is:             Tests.hs
-  build-depends:       base >= 4.7 && < 5,
-                       metagraph
-  hs-source-dirs:      tests
+  build-depends:
+      base              >= 4.7  && < 5
+    , metagraph
+    , tasty             >= 0.11 && < 0.12
+    , tasty-hunit       >= 0.9  && < 0.10
+    , tasty-quickcheck  >= 0.8  && < 0.9
+  hs-source-dirs: test
 
 source-repository head
   type:     git
-  location: https://github.com/ncrashed/metagraph
+  location: https://github.com/teaspot-studio/metagraph

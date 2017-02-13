@@ -1,10 +1,5 @@
 module Data.Metagraph(
-    Direction(..)
-  , Metagraph
-  , NodeId(..)
-  , MetaNode
-  , EdgeId(..)
-  , MetaEdge
+    module Data.Metagraph.Lazy
   ) where
 
-import Data.Metagraph.Impl
+import Data.Metagraph.Lazy
