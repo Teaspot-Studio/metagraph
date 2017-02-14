@@ -13,11 +13,12 @@ module Data.Metagraph.Lazy(
   , nodeId
   , nodePayload
   , nodeGraph
+  -- * Creation of metagraph
+  , empty
   ) where
 
 import           Data.Bifunctor
-import           Data.IntMap
-import           Data.Map.Lazy                 (Map)
+import           Data.IntMap                   (IntMap)
 import           Data.Metagraph.Internal.Types
 
 -- | Return top-level edges of metagraph
@@ -55,6 +56,13 @@ nodePayload = _nodePayload
 -- | Get node subgraph
 nodeGraph :: MetaNode edge node -> Maybe (MetaGraph edge node)
 nodeGraph = _nodeGraph
+
+-- | Make meta graph without edges and nodes
+empty :: MetaGraph edge node
+empty = MetaGraph {
+    _metagraphEdges = mempty
+  , _metagraphNodes = mempty
+  }
 
 instance Functor (MetaGraph edge) where
   fmap f m = m {

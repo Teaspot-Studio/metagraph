@@ -13,10 +13,12 @@ module Data.Metagraph.Strict(
   , nodeId
   , nodePayload
   , nodeGraph
+  -- * Creation of metagraph
+  , empty
   ) where
 
 import Data.Metagraph.Internal.Types
-import Data.IntMap
+import Data.IntMap    (IntMap)
 import Data.Bifunctor
 
 -- | Return top-level edges of metagraph
@@ -54,6 +56,16 @@ nodePayload !v = _nodePayload v
 -- | Get node subgraph
 nodeGraph :: MetaNode edge node -> Maybe (MetaGraph edge node)
 nodeGraph !v = _nodeGraph v
+
+-- | Make meta graph without edges and nodes
+empty :: MetaGraph edge node
+empty = nodes `seq` edges `seq` MetaGraph {
+    _metagraphEdges = edges
+  , _metagraphNodes = nodes
+  }
+  where
+    edges = mempty
+    nodes = mempty
 
 instance Functor (MetaGraph edge) where
   fmap !f !m = nodes `seq` edges `seq` m {

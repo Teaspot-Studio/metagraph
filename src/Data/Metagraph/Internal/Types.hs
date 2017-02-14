@@ -21,7 +21,7 @@ type NodeId = Int
 -- [@edge@] Payload of edge
 --
 -- [@node@] Payload of node
-data MetaGraph edge node = Metagraph {
+data MetaGraph edge node = MetaGraph {
 -- | Holds all top-level edges of graph
   _metagraphEdges :: IntMap (MetaEdge edge node)
 -- | Holds all top-level nodes. This is nesseccary as there can be nodes that
