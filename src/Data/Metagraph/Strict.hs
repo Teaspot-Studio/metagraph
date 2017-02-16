@@ -1,4 +1,5 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
+{-# LANGUAGE BangPatterns #-}
 module Data.Metagraph.Strict(
     MetaGraph
   , MetaEdge
@@ -9,7 +10,7 @@ module Data.Metagraph.Strict(
   , Directed(..)
   , isDirected
   , isUndirected
-  -- * Index primary info
+  -- * Getters
   , metagraphId
   , metagraphEdges
   , metagraphNodes
@@ -20,6 +21,13 @@ module Data.Metagraph.Strict(
   , nodeId
   , nodePayload
   , nodeGraph
+  -- * Index metagraph
+  , subgraphs
+  , indexNode
+  , findNode
+  , indexEdge
+  , findEdge
+  , indexGraph
   -- * Creation of metagraph
   , empty
   -- * Modifying metagraphs
@@ -27,10 +35,13 @@ module Data.Metagraph.Strict(
   , insertEdge
   ) where
 
-import Data.Metagraph.Internal.Types
-import Data.IntMap    (IntMap)
-import Data.Bifunctor
-import qualified Data.IntMap.Strict as M
+import           Data.Bifunctor
+import           Data.IntMap                   (IntMap)
+import qualified Data.IntMap.Strict            as M
+import           Data.Maybe
+import           Data.Metagraph.Internal.Types
+import           Data.Monoid
+import           Safe
 
 -- | Return metagraph id
 metagraphId :: MetaGraph edge node -> MetaGraphId
@@ -71,6 +82,43 @@ nodePayload !v = _nodePayload v
 -- | Get node subgraph
 nodeGraph :: MetaNode edge node -> Maybe (MetaGraph edge node)
 nodeGraph !v = _nodeGraph v
+
+-- | Get child subgraphs of the metagraph, only immidieate ones.
+subgraphs :: MetaGraph edge node -> [MetaGraph edge node]
+subgraphs !g =  nodesSubgraphs <> edgesSubgraphs
+  where
+    nodesSubgraphs = catMaybes . fmap _nodeGraph . M.elems $  _metagraphNodes g
+    edgesSubgraphs = catMaybes . fmap _edgeGraph . M.elems $  _metagraphEdges g
+
+-- | Traverse graph to find a node with such id
+indexNode :: NodeId -> MetaGraph edge node -> Maybe (MetaNode edge node)
+indexNode !i !g = case M.lookup (unNodeId i) $ _metagraphNodes g of
+  Just node -> Just node
+  Nothing   -> headMay . catMaybes . fmap (indexNode i) $ subgraphs g
+
+-- | Traverse graph to find a node with such payload
+findNode :: Eq node => node -> MetaGraph edge node -> Maybe (MetaNode edge node)
+findNode !payload !g = case headMay . filter ((payload ==) . _nodePayload) . M.elems $ _metagraphNodes g of
+  Just node -> Just node
+  Nothing   -> headMay . catMaybes . fmap (findNode payload) $ subgraphs g
+
+-- | Traverse graph to find a node with such id
+indexEdge :: EdgeId -> MetaGraph edge node -> Maybe (MetaEdge edge node)
+indexEdge !i !g = case M.lookup (unEdgeId i) $ _metagraphEdges g of
+  Just node -> Just node
+  Nothing   -> headMay . catMaybes . fmap (indexEdge i) $ subgraphs g
+
+-- | Traverse graph to find a node with such payload
+findEdge :: Eq edge => edge -> MetaGraph edge node -> Maybe (MetaEdge edge node)
+findEdge !payload !g = case headMay . filter ((payload ==) . _edgePayload) . M.elems $ _metagraphEdges g of
+  Just edge -> Just edge
+  Nothing   -> headMay . catMaybes . fmap (findEdge payload) $ subgraphs g
+
+-- | Traverse graph to find a subgraph with such id. If id is equal to the root graph,
+-- the root graph is returned.
+indexGraph :: MetaGraphId -> MetaGraph edge node -> Maybe (MetaGraph edge node)
+indexGraph !i !g = if _metagraphId g == i then Just g
+  else headMay . catMaybes . fmap (indexGraph i) $ subgraphs g
 
 -- | Make meta graph without edges and nodes
 empty :: MetaGraphId -> MetaGraph edge node
