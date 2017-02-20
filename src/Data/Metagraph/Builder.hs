@@ -6,6 +6,8 @@ module Data.Metagraph.Builder(
   , newMetaGraph
   , newNode
   , newEdge
+  , addNode
+  , addEdge
   -- * Helpers
   , lookupGraph
   , lookupEdge
@@ -138,6 +140,30 @@ newNode gi msubi payload = do
     , _nodePayload = payload
     , _nodeGraph   = mgr
     }
+
+-- | Add given node to metagraph
+addNode :: MetaGraphId -- ^ Target metagraph
+  -> NodeId -- ^ Existing node
+  -> MetaGraphM edge node ()
+addNode gi ni = do
+  mn <- lookupNode ni
+  case mn of
+    Nothing -> fail "addNode: cannot find node with such id"
+    Just n -> MetaGraphM . modify' $ envModifyGraphs gi $ \g -> g {
+        _metagraphNodes = M.insert (unNodeId ni) n $! _metagraphNodes g
+      }
+
+-- | Add given edge to metagraph
+addEdge :: MetaGraphId -- ^ Target metagraph
+  -> EdgeId -- ^ Existing edge
+  -> MetaGraphM edge node ()
+addEdge gi ei = do
+  mn <- lookupEdge ei
+  case mn of
+    Nothing -> fail "addEdge: cannot find edge with such id"
+    Just e -> MetaGraphM . modify' $ envModifyGraphs gi $ \g -> g {
+        _metagraphEdges = M.insert (unEdgeId ei) e $! _metagraphEdges g
+      }
 
 -- | Create new edge in build environment
 newEdge :: MetaGraphId -- ^ Metagraph the edge belongs to
